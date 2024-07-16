@@ -22,16 +22,18 @@ jobs:
       - name: Cache Node.js modules
         uses: actions/cache@v2
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: starter/frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+        working-directory: starter/frontend
 
       - name: Run lint
         run: npm run lint
+        working-directory: starter/frontend
 
   test:
     name: Test
@@ -48,16 +50,18 @@ jobs:
       - name: Cache Node.js modules
         uses: actions/cache@v2
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: starter/frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+        working-directory: starter/frontend
 
       - name: Run tests
         run: npm run test
+        working-directory: starter/frontend
 
   build:
     name: Build
@@ -75,13 +79,14 @@ jobs:
       - name: Cache Node.js modules
         uses: actions/cache@v2
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: starter/frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+        working-directory: starter/frontend
 
       - name: Build Docker image
-        run: docker build -t frontend:latest .
+        run: docker build -t frontend:latest starter/frontend
