@@ -6,79 +6,91 @@ on:
       - main
   workflow_dispatch:
 
-jobs:
-  lint:
-    name: Lint
+jobs: 
+  test-variables:
     runs-on: ubuntu-latest
+    environment:
+      name: UDACITY
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      - name: Cache Node.js modules
-        uses: actions/cache@v2
-        with:
-          path: starter/frontend/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: starter/frontend
-
-      - name: Run lint
-        run: npm run lint
-        working-directory: starter/frontend
-
-  test:
-    name: Test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Setup NodeJS
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-
-      - name: Cache Node.js modules
-        uses: actions/cache@v2
-        with:
-          path: starter/frontend/node_modules
-          key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-node-
-
-      - name: Install dependencies
-        run: npm ci
-        working-directory: starter/frontend
-
-      - name: Run tests
-        run: npm run test
-        working-directory: starter/frontend
-
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: [lint, test]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      
       - name: Check variable value
         env:
           REACT_APP_MOVIE_API_URL: ${{ vars.REACT_APP_MOVIE_API_URL }}
         run: echo $REACT_APP_MOVIE_API_URL
+
+# jobs:
+#   lint:
+#     name: Lint
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Setup NodeJS
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '16'
+
+#       - name: Cache Node.js modules
+#         uses: actions/cache@v2
+#         with:
+#           path: starter/frontend/node_modules
+#           key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
+#           restore-keys: |
+#             ${{ runner.os }}-node-
+
+#       - name: Install dependencies
+#         run: npm ci
+#         working-directory: starter/frontend
+
+#       - name: Run lint
+#         run: npm run lint
+#         working-directory: starter/frontend
+
+#   test:
+#     name: Test
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Setup NodeJS
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: '16'
+
+#       - name: Cache Node.js modules
+#         uses: actions/cache@v2
+#         with:
+#           path: starter/frontend/node_modules
+#           key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
+#           restore-keys: |
+#             ${{ runner.os }}-node-
+
+#       - name: Install dependencies
+#         run: npm ci
+#         working-directory: starter/frontend
+
+#       - name: Run tests
+#         run: npm run test
+#         working-directory: starter/frontend
+
+#   build:
+#     name: Build
+#     runs-on: ubuntu-latest
+#     needs: [lint, test]
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+      
+#       - name: Check variable value
+#         env:
+#           REACT_APP_MOVIE_API_URL: ${{ vars.REACT_APP_MOVIE_API_URL }}
+#         run: echo $REACT_APP_MOVIE_API_URL
         
 
-      - name: Build Docker image
-        env:
-          REACT_APP_MOVIE_API_URL: ${{ vars.REACT_APP_MOVIE_API_URL }}
-        run: docker build --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL -t mp-frontend:latest starter/frontend
+#       - name: Build Docker image
+#         env:
+#           REACT_APP_MOVIE_API_URL: ${{ vars.REACT_APP_MOVIE_API_URL }}
+#         run: docker build --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL -t mp-frontend:latest starter/frontend
         
