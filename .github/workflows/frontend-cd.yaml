@@ -77,6 +77,9 @@ jobs:
 
       - name: Push Docker image to ECR
         run: docker push $REPO_URI:$IMAGE_TAG
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          REPO_URI: ${{ vars.FRONTEND_REPO_URI }}
 
       - name: Deploy to EKS
         run: |
