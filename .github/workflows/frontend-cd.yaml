@@ -81,6 +81,13 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
           REPO_URI: ${{ vars.FRONTEND_REPO_URI }}
 
+      - name: Configure kubeconfig
+        run: aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region us-east-1
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
+
       - name: Deploy to EKS
         run: |
           kustomize edit set image frontend=$REPO_URI:$IMAGE_TAG
