@@ -88,3 +88,4 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
           REPO_URI: ${{ vars.FRONTEND_REPO_URI }}
+        working-directory: starter/frontend/k8s
