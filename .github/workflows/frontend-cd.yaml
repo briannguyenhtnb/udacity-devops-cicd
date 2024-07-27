@@ -12,36 +12,40 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '18.14'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+        working-directory: starter/frontend
 
       - name: Run lint
         run: npm run lint
+        working-directory: starter/frontend
 
   test:
     name: Test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '18.14'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
+        working-directory: starter/frontend
 
       - name: Run tests
         run: npm run test
+        working-directory: starter/frontend
 
   build:
     name: Build
@@ -49,21 +53,15 @@ jobs:
     needs: [lint, test]
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build Docker image
-        run: docker build --build-arg REACT_APP_MOVIE_API_URL=${{ secrets.MOVIE_API_URL }} -t frontend:latest .
+          node-version: '18.14'
 
       - name: Login to ECR
-        uses: aws-actions/amazon-ecr-login@v1
+        uses: aws-actions/amazon-ecr-login@v2
         with:
           registry: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
         env:
@@ -71,14 +69,21 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
 
+      - name: Build Docker image
+        run: docker build --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL -t $REPO_URI:$IMAGE_TAG .
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+          REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
+          REPO_URI: ${{ vars.FRONTEND_REPO_URI }}
+        working-directory: starter/frontend
+
       - name: Push Docker image to ECR
-        run: |
-          docker tag frontend:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+        run: docker push $REPO_URI:$IMAGE_TAG
 
       - name: Deploy to EKS
-        uses: actions/eks-kubectl@v1
-        with:
-          args: set image deployment/frontend frontend=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/frontend:latest
+        run: |
+          kustomize edit set image frontend=$REPO_URI:$IMAGE_TAG
+          kustomize build | kubectl apply -f -
         env:
-          KUBECONFIG: ${{ secrets.KUBECONFIG }}
+          IMAGE_TAG: ${{ github.sha }}
+          REPO_URI: ${{ vars.FRONTEND_REPO_URI }}
