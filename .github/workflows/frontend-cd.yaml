@@ -71,7 +71,7 @@ jobs:
         run: docker build --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL -t $REPO_URI:$IMAGE_TAG .
         env:
           IMAGE_TAG: ${{ github.sha }}
-          REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
+          REACT_APP_MOVIE_API_URL: ${{ vars.REACT_APP_MOVIE_API_URL }}
           REPO_URI: ${{ vars.FRONTEND_REPO_URI }}
         working-directory: starter/frontend
 
